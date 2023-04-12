@@ -1,0 +1,28 @@
+---
+name: CI/CD
+
+on:
+  push:
+    branches: ['**']
+    paths-ignore:
+      - '**/*.md'
+
+jobs:
+  build:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Build with Maven
+        run: mvn package
+      
+      - name: Test with Maven
+        run: mvn test
