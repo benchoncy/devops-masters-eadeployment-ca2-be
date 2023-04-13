@@ -94,10 +94,13 @@ jobs:
       
       - name: Container image build
         id: build
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           push: ${{ (github.event_name == 'pull_request') || (github.ref_name == 'main') }}
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
+          #,linux/arm64
           context: .
           labels: ${{ steps.meta.outputs.labels }}
           tags: ${{ steps.meta.outputs.tags }}
+          #cache-from: type=gha
+          #cache-to: type=gha
