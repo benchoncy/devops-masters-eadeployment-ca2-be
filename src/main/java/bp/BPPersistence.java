@@ -9,10 +9,10 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.bson.Document;
+import java.lang.System;
 
 /**
  *
@@ -23,22 +23,24 @@ public class BPPersistence {
     public static final String FILTERS = "com.mongodb.client.model.Filters.*";
     public static final String UPDATES = "com.mongodb.client.model.Updates.*";
     
-    private static ResourceBundle rb = ResourceBundle.getBundle("config");
+    String databaseUrl = System.getenv("DATABASE_URI");
+    String databaseName = System.getenv("DATABASE_NAME");
+    String databaseCollection = System.getenv("DATABASE_COLLECTION");
     
     MongoDatabase database;
     
     public void initiliaze() throws Exception {
         try {   
-            System.out.println(">> " + rb.getString("databaseUrl")); 
+            System.out.println(">> " + databaseUrl); 
             //Create client for connection
-            MongoClient mongoClient = MongoClients.create(rb.getString("databaseUrl"));
+            MongoClient mongoClient = MongoClients.create(databaseUrl);
                         
-            System.out.println(">> " + rb.getString("databaseName"));
+            System.out.println(">> " + databaseName);
             //Connect to DB
-            database = (MongoDatabase) mongoClient.getDatabase(rb.getString("databaseName"));
+            database = (MongoDatabase) mongoClient.getDatabase(databaseName);
             System.out.println("Name: " + database.getName() ); 
             
-            MongoCollection<Document> collection = database.getCollection(rb.getString("databaseCollection"));
+            MongoCollection<Document> collection = database.getCollection(databaseCollection);
             for (String name : database.listCollectionNames()) {
                 System.out.println(name);
             }
@@ -79,7 +81,7 @@ public class BPPersistence {
     */ 
     public boolean insertDocument(Document doc) throws Exception {
         try {
-            MongoCollection<Document> collection = database.getCollection(rb.getString("databaseCollection"));
+            MongoCollection<Document> collection = database.getCollection(databaseCollection);
             collection.insertOne(doc);
             return true;
         }
