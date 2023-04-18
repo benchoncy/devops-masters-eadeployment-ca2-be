@@ -1,8 +1,10 @@
 import os
 import json
+import datetime
 from flask import Flask
 from flask_talisman import Talisman
 from bpcalc.bpenums import BPCategory, BPLimits
+from bpcalc.database import insert_document
 
 
 # Get flask app
@@ -53,8 +55,8 @@ def get_bp_category(systolic, diastolic):
 
 
 @app.route("/")
-@app.route("/<systolic>/<diastolic>")
-@app.route("/<systolic>/<diastolic>/<email>")
+@app.route("/<systolic>/<diastolic>/")
+@app.route("/<systolic>/<diastolic>/<email>/")
 def index(systolic=None, diastolic=None, email=None):
     """Index route containing BPCalculator."""
     print(systolic, diastolic, email)
@@ -68,10 +70,19 @@ def index(systolic=None, diastolic=None, email=None):
     success = error is None
     category = None
     if success:
-        category = get_bp_category(systolic, diastolic)
+        category = str(get_bp_category(systolic, diastolic))
+        today = datetime.date.today()
+        doc = {
+            "email": email,
+            "systolic": systolic,
+            "diastolic": diastolic,
+            "category": category,
+            "date": today.strftime("%d-%m-%Y %H:%M")
+        }
+        insert_document(doc)
     response = json.dumps({
         "error": error,
-        "category": str(category)
+        "category": category
     })
     return response
 
