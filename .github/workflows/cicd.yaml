@@ -19,23 +19,25 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Setup JDK
-        uses: actions/setup-java@v3
-        with:
-          java-version: '11'
-          distribution: 'temurin'
+      - name: Install poetry
+        run: pipx install poetry==1.2.2
 
-      - name: Build with Maven
-        run: mvn package
-      
-      - name: Test with Maven
-        run: mvn test
-      
-      - name: Save build artifact
-        uses: actions/upload-artifact@v3
+      - name: Setup Python
+        uses: actions/setup-python@v4
         with:
-          name: build-artifact
-          path: target/BPRestWS-*-SNAPSHOT.war
+          python-version: '3.10'
+          cache: 'poetry'
+
+      - name: Install dependencies
+        run: poetry install
+      
+      - name: Run linter
+        run: poetry run flake8 .
+      
+      - name: Run unit tests
+        run: |
+          poetry run coverage run --source=bpcalc -m pytest tests/unit
+          poetry run coverage report --fail-under=80
     
   check:
     name: Check requirements
@@ -58,11 +60,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      
-      - uses: actions/download-artifact@v3
-        with:
-          name: build-artifact
-          path: target/build.war
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
