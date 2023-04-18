@@ -1,6 +1,6 @@
 import os
 import json
-from flask import Flask, request, Response
+from flask import Flask
 from flask_talisman import Talisman
 from bpcalc.bpenums import BPCategory, BPLimits
 
