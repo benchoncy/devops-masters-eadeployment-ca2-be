@@ -27,7 +27,7 @@ def bp_fill_values(systolic, diastolic):
 @when("form is submitted",
       target_fixture="response")
 def submit(client, data):
-    response = client.get(f"/{data['systolic']}/{data['diastolic']}")
+    response = client.get(f"/{data['systolic']}/{data['diastolic']}/")
     return response
 
 
