@@ -71,15 +71,16 @@ def index(systolic=None, diastolic=None, email=None):
     category = None
     if success:
         category = str(get_bp_category(systolic, diastolic))
-        today = datetime.date.today()
-        doc = {
-            "email": email,
-            "systolic": systolic,
-            "diastolic": diastolic,
-            "category": category,
-            "date": today.strftime("%d-%m-%Y %H:%M")
-        }
-        insert_document(doc)
+        if email is not None:
+            today = datetime.date.today()
+            doc = {
+                "email": email,
+                "systolic": systolic,
+                "diastolic": diastolic,
+                "category": category,
+                "date": today.strftime("%d-%m-%Y %H:%M")
+            }
+            insert_document(doc)
     response = json.dumps({
         "error": error,
         "category": category
