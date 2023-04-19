@@ -119,3 +119,4 @@ jobs:
           workflow: invoke-deployment.yaml
           repo: benchoncy/devops-masters-eadeployment-ca2-env
           inputs: '{ "tag": "${{ needs.image.outputs.tag }}", "service_name": "bpcalc-be" }'
+          token: ${{ secrets.TOKEN_GHA }}
