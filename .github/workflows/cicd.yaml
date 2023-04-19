@@ -57,6 +57,8 @@ jobs:
     name: Build container image
     needs: [ build ]
     runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.get_tag.outputs.tag }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -98,3 +100,21 @@ jobs:
           context: .
           labels: ${{ steps.meta.outputs.labels }}
           tags: ${{ steps.meta.outputs.tags }}
+      
+      - name: Get sha tag
+        id: get_tag
+        run: |
+          TAG=$(jq -r '."image.name" | scan("sha-[a-z0-9]+")' <<< '${{ steps.build.outputs.metadata }}')
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+  
+  deploy:
+    name: Invoke deployment
+    needs: [ image ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Invoke workflow in another repo with inputs
+        uses: benc-uk/workflow-dispatch@v1
+        with:
+          workflow: invoke-deployment.yaml
+          repo: benchoncy/devops-masters-eadeployment-ca2-env
+          inputs: '{ "tag": "${{ needs.image.outputs.tag }}", "service_name": "bpcalc-be" }'
