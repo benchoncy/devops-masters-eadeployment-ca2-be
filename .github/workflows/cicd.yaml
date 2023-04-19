@@ -38,20 +38,6 @@ jobs:
         run: |
           poetry run coverage run --source=bpcalc -m pytest tests/unit
           poetry run coverage report --fail-under=80
-    
-  check:
-    name: Check requirements
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@0.8.0
-        with:
-          scan-type: 'fs'
-          scan-ref: '.'
-          security-checks: vuln,secret,config
 
   image:
     name: Build container image
@@ -104,12 +90,27 @@ jobs:
       - name: Get sha tag
         id: get_tag
         run: |
-          TAG=$(jq -r '."image.name" | scan("sha-[a-z0-9]+")' <<< '${{ steps.build.outputs.metadata }}')
+          TAG=$(jq -r '."tags" | map(scan(".*:sha-[a-z0-9]+"))[0] | split(":")[1]' <<< '${{ steps.meta.outputs.json }}')
           echo "tag=$TAG" >> $GITHUB_OUTPUT
   
+  check:
+    name: Check requirements
+    runs-on: ubuntu-latest
+    needs: [ image ]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@0.8.0
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          security-checks: vuln,secret,config
+
   deploy:
     name: Invoke deployment
-    needs: [ image ]
+    needs: [ image, check ]
     runs-on: ubuntu-latest
     steps:
       - name: Invoke workflow in another repo with inputs
