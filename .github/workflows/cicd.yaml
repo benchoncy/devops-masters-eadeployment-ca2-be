@@ -3,7 +3,7 @@ name: CI/CD
 
 on:
   push:
-    branches: ['**']
+    branches: ['main']
     paths-ignore:
       - '**/*.md'
 
@@ -95,17 +95,34 @@ jobs:
   
   check:
     name: Check requirements
+    needs: [ image ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
       
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@0.8.0
+      - name: Azure docker login
+        uses: azure/docker-login@v1
+        with:
+          login-server: ${{ env.IMAGE_REGISTRY }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+      
+      - name: Run Trivy vulnerability scanner (filesystem)
+        uses: aquasecurity/trivy-action@0.10.0
         with:
           scan-type: 'fs'
           scan-ref: '.'
-          security-checks: vuln,secret,config
+          scanners: vuln,secret,config
+      
+      - name: Run Trivy vulnerability scanner (image)
+        uses: aquasecurity/trivy-action@0.10.0
+        with:
+          scan-type: 'image'
+          scan-ref: ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.image.outputs.tag }}
+          scanners: vuln,secret,config
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
 
   deploy:
     name: Invoke deployment
