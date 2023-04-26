@@ -15,9 +15,11 @@ permissions_policy = {
     'geolocation': '()',
     'microphone': '()'
 }
+
 csp = {
     'default-src': '\'self\' cdn.jsdelivr.net'
 }
+
 Talisman(
     app,
     force_https=False,
