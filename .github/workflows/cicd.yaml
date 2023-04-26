@@ -119,7 +119,7 @@ jobs:
         uses: aquasecurity/trivy-action@0.10.0
         with:
           scan-type: 'image'
-          scan-ref: ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.image.outputs.tag }}
+          image-ref: ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.image.outputs.tag }}
           scanners: vuln,secret,config
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
