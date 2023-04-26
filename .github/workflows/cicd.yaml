@@ -101,13 +101,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       
-      - name: Azure docker login
-        uses: azure/docker-login@v1
-        with:
-          login-server: ${{ env.IMAGE_REGISTRY }}
-          username: ${{ secrets.REGISTRY_USERNAME }}
-          password: ${{ secrets.REGISTRY_PASSWORD }}
-      
       - name: Run Trivy vulnerability scanner (filesystem)
         uses: aquasecurity/trivy-action@0.10.0
         with:
@@ -123,6 +116,10 @@ jobs:
           scanners: vuln,secret,config
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
+        env:
+          AZURE_CLIENT_ID: ${{ secrets.REGISTRY_USERNAME }}
+          AZURE_CLIENT_SECRET: ${{ secrets.REGISTRY_PASSWORD }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
 
   deploy:
     name: Invoke deployment
