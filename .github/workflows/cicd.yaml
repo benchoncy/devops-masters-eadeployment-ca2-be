@@ -115,14 +115,14 @@ jobs:
           scan-ref: '.'
           scanners: vuln,secret,config
       
-      #- name: Run Trivy vulnerability scanner (image)
-      #  uses: aquasecurity/trivy-action@0.10.0
-      #  with:
-      #    scan-type: 'image'
-      #    image-ref: ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.image.outputs.tag }}
-      #    scanners: vuln,secret,config
-      #    vuln-type: 'os,library'
-      #    severity: 'CRITICAL,HIGH'
+      - name: Run Trivy vulnerability scanner (image)
+        uses: aquasecurity/trivy-action@0.10.0
+        with:
+          scan-type: 'image'
+          image-ref: ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.image.outputs.tag }}
+          scanners: vuln,secret,config
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
 
   deploy:
     name: Invoke deployment
